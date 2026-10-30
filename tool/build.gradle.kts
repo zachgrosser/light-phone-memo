@@ -38,7 +38,7 @@ android {
     }
 
     buildFeatures {
-        // Memo reads its version from BuildConfig (set by Light's plugin from lighttool.toml).
+        // For the version number on the About screen.
         buildConfig = true
     }
 

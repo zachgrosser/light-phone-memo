@@ -45,10 +45,6 @@ import com.thelightphone.sdk.ui.lightClickable
 import kotlin.math.floor
 import kotlin.math.max
 
-/**
- * Applies the user's LightOS theme (light or dark), fills the screen with its background, and
- * keeps the screen on while Memo is open, whatever the phone's screen timeout says.
- */
 @Composable
 fun MemoTheme(content: @Composable () -> Unit) {
     val colors by LightThemeController.colors.collectAsState()
@@ -56,6 +52,7 @@ fun MemoTheme(content: @Composable () -> Unit) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                // Stays on whatever the phone's timeout setting is.
                 .keepScreenOn()
                 .background(LightThemeTokens.colors.background),
         ) {
@@ -70,7 +67,6 @@ fun backButton(onClick: () -> Unit) = LightBarButton.LightIcon(
     contentDescription = "Back",
 )
 
-/** A top bar plus a centred message, with an optional action (such as "DELETE") in the bottom bar. */
 @Composable
 fun MessageScreen(
     title: String,
@@ -103,7 +99,6 @@ fun MessageScreen(
     }
 }
 
-/** One tappable line in a list: a title, an optional detail line under it, and [trailing] text. */
 @Composable
 fun ListRow(title: String, onClick: (() -> Unit)?, detail: String? = null, trailing: String? = null) {
     val unit = 1f.gridUnitsAsDp()
@@ -127,7 +122,6 @@ fun ListRow(title: String, onClick: (() -> Unit)?, detail: String? = null, trail
     }
 }
 
-/** A small heading above a group of rows. */
 @Composable
 fun ListHeading(text: String) {
     val unit = 1f.gridUnitsAsDp()
@@ -139,7 +133,6 @@ fun ListHeading(text: String) {
     )
 }
 
-/** A paragraph of explanation inside a scrolling list. */
 @Composable
 fun Note(text: String, modifier: Modifier = Modifier) {
     LightText(
@@ -149,12 +142,6 @@ fun Note(text: String, modifier: Modifier = Modifier) {
     )
 }
 
-/**
- * Times that count up or down, in Light's typeface (Akkurat, built into the phone) with
- * same-width digits, so "0:11" and "0:18" take the same space and the text doesn't shuffle
- * sideways every second. [style] is one of Light's styles, such as
- * `LightThemeTokens.typography.title` (the large, light numbers LightOS uses).
- */
 @Composable
 fun TimeText(text: String, style: TextStyle, modifier: Modifier = Modifier, lighten: Boolean = false) {
     val colors = LightThemeTokens.colors
@@ -162,17 +149,16 @@ fun TimeText(text: String, style: TextStyle, modifier: Modifier = Modifier, ligh
         text = text,
         modifier = modifier,
         color = if (lighten) colors.contentSecondary else colors.content,
-        // Scaled to the screen the same way LightText scales Light's styles.
         style = style.copy(
             fontSize = style.fontSize.value.designVerticalPxToSp(),
             lineHeight = style.lineHeight.value.designVerticalPxToSp(),
             letterSpacing = if (style.letterSpacing.isSpecified) style.letterSpacing.value.designVerticalPxToSp() else style.letterSpacing,
+            // Same-width digits, so the time doesn't shift as it counts.
             fontFeatureSettings = "tnum",
         ),
     )
 }
 
-/** Light's full-screen notice, drawn over the current screen: low storage, recording stopped. */
 @Composable
 fun FullScreenNotice(message: String, onClose: () -> Unit) {
     LightFullscreenModal(
@@ -182,24 +168,12 @@ fun FullScreenNotice(message: String, onClose: () -> Unit) {
     )
 }
 
-/**
- * The recording drawn as lines, like Google Recorder: a row of rounded vertical bars, one per
- * [Waveform] sample, mirrored about the middle and scrolling past a fixed line in the centre.
- *
- * - While recording, [position] is [totalSamples], the end of what's recorded: new bars appear at the centre line and
- *   move left. Right of the line is empty, shown as a row of dots.
- * - While playing, bars left of the line (already heard) are full colour and the rest are
- *   dimmed. With [onScrub], dragging sideways moves through the recording.
- *
- * [position] is in samples and may be fractional, so the drawing scrolls smoothly.
- */
 @Composable
 fun WaveformView(
     levels: List<Int>,
     position: Float,
     modifier: Modifier = Modifier,
     totalSamples: Int = levels.size,
-    /** Draw dots past [totalSamples] too: the empty future while recording. */
     dotsBeyondEnd: Boolean = false,
     onScrubStart: (() -> Unit)? = null,
     onScrub: ((Float) -> Unit)? = null,
@@ -226,7 +200,7 @@ fun WaveformView(
                 onDragCancel = { onScrubEnd?.invoke() },
             ) { change, dragAmount ->
                 change.consume()
-                // Dragging right pulls earlier audio towards the centre line, as in Recorder.
+                // Dragging right goes back in time, like Google Recorder.
                 dragPosition = (dragPosition - dragAmount / step).coerceIn(0f, currentTotal.toFloat())
                 onScrub(dragPosition)
             }
@@ -237,12 +211,10 @@ fun WaveformView(
         val bar = barWidth.toPx()
         val centreX = size.width / 2f
         val centreY = size.height / 2f
-        // The loudest bars fill most of the height; the centre line reaches just past them.
         val maxHalf = size.height * 0.36f
         val minHalf = bar / 2f
         val radius = CornerRadius(bar / 2f, bar / 2f)
 
-        // The bars that fit on screen around the current position.
         val first = max(0, floor(position - centreX / step).toInt() - 1)
         val last = (position + centreX / step).toInt() + 1
         for (i in first..last) {
@@ -250,7 +222,6 @@ fun WaveformView(
             if (x < -bar || x > size.width) continue
             val level = if (i < totalSamples) levels.getOrNull(i) else null
             if (level == null) {
-                // Nothing drawn here (yet): a dot on the middle line.
                 if (i < totalSamples || dotsBeyondEnd) {
                     drawCircle(colors.contentSecondary.copy(alpha = 0.5f), radius = bar / 3f, center = Offset(x + bar / 2f, centreY))
                 }
@@ -265,7 +236,6 @@ fun WaveformView(
                 cornerRadius = radius,
             )
         }
-        // The centre line: "now". Rounded ends, like the bars.
         val lineWidth = centreLineWidth.toPx()
         val lineHalf = maxHalf + bar * 2f
         drawRoundRect(

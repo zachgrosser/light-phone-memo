@@ -42,21 +42,12 @@ import java.io.File
 import java.time.LocalDateTime
 
 sealed interface RecordPhase {
-    /** Asking LightOS whether Memo may use the microphone. */
     data object Checking : RecordPhase
-
-    /** The microphone permission hasn't been given (yet). [asked] once the request has been shown. */
     data class NeedsPermission(val asked: Boolean, val blocked: Boolean = false) : RecordPhase
-
     data object Recording : RecordPhase
     data object Paused : RecordPhase
-
-    /** Stopping and saving. */
     data object Saving : RecordPhase
-
-    /** Done (saved, or nothing to save): go back to the list, after the notice if there is one. */
     data object Finished : RecordPhase
-
     data class Failed(val message: String) : RecordPhase
 }
 
@@ -64,9 +55,7 @@ data class RecordState(
     val phase: RecordPhase = RecordPhase.Checking,
     val name: String = "",
     val elapsedMillis: Long = 0,
-    /** Number of waveform samples so far; the samples themselves are [RecordViewModel.levels]. */
     val samples: Int = 0,
-    /** A full-screen notice: low storage, or why recording stopped. */
     val notice: String? = null,
 )
 
@@ -75,28 +64,24 @@ class RecordViewModel(private val store: RecordingStore, private val filesDir: F
     private val _state = MutableStateFlow(RecordState())
     val state: StateFlow<RecordState> = _state
 
-    /** Bar heights so far (see [Waveform]). Only touched on the main thread. */
     val levels = ArrayList<Int>()
 
     private var recorder: Recorder? = null
     private var ticker: Job? = null
     private var lowWarned = false
 
-    /** Elapsed time before the current stretch of recording, and when that stretch began. */
     private var elapsedBefore = 0L
     private var stretchStart = 0L
 
     override fun onScreenShow(screen: SimpleLightScreen<Unit>) {
         super.onScreenShow(screen)
-        // First visit, or back from LightOS's permission request.
         val phase = _state.value.phase
         if (phase == RecordPhase.Checking || phase is RecordPhase.NeedsPermission) checkMicrophone()
     }
 
+    // Apps in the background can't hear the mic, so save instead of recording silence.
     override fun onAppPause() {
         super.onAppPause()
-        // Android stops apps in the background from hearing the microphone, so leaving Memo
-        // (or the screen being switched off) saves the recording rather than recording silence.
         if (recorder != null) stop()
     }
 
@@ -115,7 +100,6 @@ class RecordViewModel(private val store: RecordingStore, private val filesDir: F
         }
     }
 
-    /** The screen has shown LightOS's permission request. */
     fun permissionAsked() = _state.update { it.copy(phase = RecordPhase.NeedsPermission(asked = true)) }
 
     fun retryPermission() = _state.update { it.copy(phase = RecordPhase.NeedsPermission(asked = false)) }
@@ -150,7 +134,6 @@ class RecordViewModel(private val store: RecordingStore, private val filesDir: F
         ticker = viewModelScope.launch { tick() }
     }
 
-    /** Every [Waveform.SAMPLE_MILLIS]: a new bar and the time; every second: the free space. */
     private suspend fun tick() {
         var count = 0
         while (true) {
@@ -197,7 +180,6 @@ class RecordViewModel(private val store: RecordingStore, private val filesDir: F
         _state.update { it.copy(phase = RecordPhase.Recording) }
     }
 
-    /** Stops and saves. With [notice], says why before going back to the list. */
     fun stop(notice: String? = null) {
         val rec = recorder ?: run {
             _state.update { it.copy(phase = RecordPhase.Finished) }
@@ -218,8 +200,8 @@ class RecordViewModel(private val store: RecordingStore, private val filesDir: F
 
     fun closeNotice() = _state.update { it.copy(notice = null) }
 
+    // Shouldn't happen, but don't lose a recording if it does.
     override fun onCleared() {
-        // The screen went away without stopping (shouldn't happen): keep what was recorded.
         recorder?.let { rec ->
             ticker?.cancel()
             if (rec.stop()) store.saveInProgress(_state.value.name, levels.toList()) else store.discardInProgress()
@@ -229,7 +211,6 @@ class RecordViewModel(private val store: RecordingStore, private val filesDir: F
     }
 }
 
-/** Records a new memo. Starts as soon as it opens (once the microphone is allowed). */
 class RecordScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, RecordViewModel>(sealedActivity) {
 
     override val viewModelClass: Class<RecordViewModel>
@@ -250,7 +231,6 @@ class RecordScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, Reco
                 permissionLauncher.launch()
             }
         }
-        // Back to the list once saved, after any notice has been read.
         LaunchedEffect(phase, state.notice) {
             if (phase == RecordPhase.Finished && state.notice == null) goBack()
         }
@@ -298,7 +278,7 @@ internal fun RecordContent(
         else -> "Recording"
     }
     Column(modifier = Modifier.fillMaxSize()) {
-        // Back saves, like stop: a recording is never thrown away by accident.
+        // Back saves too.
         LightTopBar(leftButton = backButton(onStop), center = LightTopBarCenter.Text(title))
         Column(
             modifier = Modifier.weight(1f).fillMaxWidth(),

@@ -6,18 +6,11 @@ import java.io.File
 import kotlin.math.abs
 import kotlin.math.sin
 
-// Previews of every screen at each Light device's screen size, to check layouts without an
-// emulator. In Android Studio, open this file and choose "Split" or "Design" (top right).
-//
-// Light Phone III: 1080 x 1240 pixels, 3.92". Light's own previews use these dp values.
-// Light Flip:      480 x 640 pixels, 2.8" (shipping April 2027). The dp size assumes roughly
-//                  280 dpi; the Light SDK scales text and spacing to the screen.
-
+// Light Phone III (1080 x 1240) and Light Flip (480 x 640).
 @Preview(name = "Light Phone III", widthDp = 360, heightDp = 413, showBackground = true, backgroundColor = 0xFF000000)
 @Preview(name = "Light Flip", widthDp = 274, heightDp = 366, showBackground = true, backgroundColor = 0xFF000000)
 annotation class LightDevicePreviews
 
-/** A made-up voice: bursts of words with pauses between them. */
 private val SAMPLE_LEVELS = List(600) { i ->
     val word = abs(sin(i / 3.0)) * 150 + abs(sin(i / 7.3)) * 90
     if ((i / 25) % 4 == 3) (i * 7 % 13) else word.toInt().coerceAtMost(255)

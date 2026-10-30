@@ -4,15 +4,9 @@ A tool for the **Light Phone III**, built on [Light's official SDK](https://gith
 
 ## Memo
 
-A voice recorder for the Light Phone: record, pause and carry on, play back at any speed, and drag through a recording on its waveform.
+A simple voice recorder. Record, pause and carry on, then play it back at whatever speed you like, dragging through the waveform to find your place. Recordings stay on your phone; you can copy them to a computer over Wi-Fi with Light's Tool Manager.
 
-- Recordings stay on the phone. Memo has no internet access, accounts, ads or tracking.
-- Copy recordings to a computer over your own Wi-Fi with Light's Tool Manager.
-- Rename and delete recordings; names default to when they started (`2026.10.30 1405`).
-- Keeps the screen on, warns when storage runs low and stops recording before the phone fills up.
-- Works on the Light Phone III's screen and adapts to smaller ones like the Light Flip's.
-
-How it works, what it supports and how to set it up: [`tool/README.md`](../tool/README.md).
+More about how it works: [`tool/README.md`](../tool/README.md).
 
 ## Where to start
 

@@ -1,72 +1,56 @@
 # Memo
 
-A voice recorder for the Light Phone III (and later the Light Flip).
+A voice recorder for the Light Phone III.
 
-- **Record:** tap the microphone. Pause and resume as often as you like; stop (or the back arrow) saves. A line drawing of the sound scrolls past a centre line as you speak, like Google Recorder's.
-- **Play:** tap a recording. Drag the waveform sideways (or tap the progress line) to move through it, skip 15 seconds back or forward, and tap the speed (1×, 1.25×, 1.5×, 2×, 0.5×, 0.75×) to change it.
-- **Rename, share, delete:** the ••• button on a recording.
-- **Names:** a new recording is named after when it started, such as `2026.10.30 1405` (year.month.day, 24-hour time). There's no colon in the time because colons aren't allowed in file names on Windows.
-- **The screen stays on** while Memo is open, whatever the phone's screen timeout is.
-- **Storage:** About shows how much space is free. Below 10% free, Memo shows a full-screen warning. At 2% it won't start a recording and stops one in progress (keeping what was recorded), so the phone keeps working.
+Tap the microphone to record. You can pause and carry on as often as you like, and stop (or back) saves. While you record, the sound scrolls past as a row of bars, a bit like Google's Recorder app.
 
-## Privacy and sharing
+Tap a recording to play it. Drag the bars to move around, skip 15 seconds either way, or tap the speed to change it (0.5× to 2×). The ••• button renames, shares or deletes it.
 
-Recordings always stay on the phone. Memo has no internet permission, no accounts, ads or tracking.
+New recordings are named after the time they started, like `2026.10.30 1405`.
 
-Light phones have no share menu, so recordings are shared through **Light's Tool Manager**: with the phone and a computer on the same Wi-Fi, open the Tool Manager in the computer's browser and choose **Memo → Recordings** to download them (or to add `.m4a` files, which then appear in Memo's list). The files go straight from the phone to the computer.
+The screen stays on while Memo is open, so a long recording isn't cut short by the screen timeout. If the phone gets down to 10% free space Memo warns you, and at 2% it stops recording (and saves what it has) so the phone keeps working. About shows how much space is left.
 
-## Limits
+## Privacy
 
-- **Leaving Memo stops a recording** and saves it. That includes switching the screen off with the power button. Android doesn't let apps in the background hear the microphone unless they run a foreground service, and Light's tools can't.
-- **No transcription.** Android's speech recognizer isn't available to Light tools, and no speech library is on Light's list of allowed libraries. Light's SDK also has no way to send text to the Notes tool.
+Recordings stay on your phone. Memo doesn't have internet access, and there are no accounts, ads or tracking.
+
+Light phones don't have a share menu, so sharing goes through Light's Tool Manager: with the phone and a computer on the same Wi-Fi, open the Tool Manager on the computer and go to **Memo → Recordings** to download them. Files go straight from the phone to the computer.
+
+## Things it can't do
+
+- Keep recording in the background. Android only lets apps use the microphone in the background with a foreground service, which Light tools can't have, so leaving Memo or turning the screen off stops and saves the recording.
+- Transcribe. Android's speech recognition isn't available to Light tools, and there's no speech library on Light's allowed list.
 
 ## Light's Tool Guidelines
 
-How Memo meets each of Light's [Tool Guidelines](../TOOL_GUIDELINES.md):
-
-| Guideline | Memo |
+| | |
 |---|---|
-| Intentionality | One job: record and play back. No feeds, notifications or anything that asks to be checked. |
-| Privacy | No internet permission, analytics or tracking. Recordings leave the phone only when the person downloads them with Light's Tool Manager; About and Share say so. |
+| Intentionality | Records and plays back. No feeds or notifications. |
+| Privacy | No internet permission, analytics or tracking. Recordings only leave the phone if you download them with the Tool Manager, and About says so. |
 | No advertising | None. |
-| Open source | MIT ([LICENSE](LICENSE)). |
-| SDK compliance | Built with Light's SDK and checked against the version Light's build server uses (v0.2.0). Microphone access goes through LightOS (`checkPermission`, `rememberPermissionRequestLauncher`); sharing through the SDK's Tool Manager support. |
-| Design | Light's components throughout: top and bottom bars, icons, text styles, lists, progress line, text entry and full-screen notice, in the person's light or dark theme. The waveform and the timers are drawn in Light's colours and typeface. |
-| Longevity & maintenance | Works entirely offline. No dependencies beyond Light's SDK; standard .m4a audio any computer can play. |
+| Open source | MIT, see [LICENSE](LICENSE). |
+| SDK compliance | Built with Light's SDK, and built against v0.2.0 (the version Light's build server uses). The microphone permission goes through LightOS, and sharing uses the SDK's Tool Manager support. |
+| Design | Light's own components: top and bottom bars, icons, text styles, lists, text entry, progress bar and full-screen notice, in light or dark. The bars and timers use Light's colours and font. |
+| Longevity | Works offline, depends only on Light's SDK, and saves plain .m4a files. |
 | Legal | No third-party services or content. |
 
-## Files
+## The code
 
-All in `src/main/kotlin/com/zachgrosser/memo/`:
+In `src/main/kotlin/com/zachgrosser/memo/`:
 
-| File | What it does |
-|---|---|
-| `Models.kt` | Memo's rules, with no Android code: default names, cleaning typed names, storage levels (10% and 2%), formatting sizes and times, playback speeds, and the waveform's scale and file format. |
-| `RecordingStore.kt` | Where recordings live: listing, saving a finished recording, renaming and deleting (audio and waveform together). |
-| `Audio.kt` | The Android parts: recording with `MediaRecorder` (mono AAC .m4a, about 0.5 MB a minute), playing with `MediaPlayer`, reading lengths, and free space (`StatFs`). |
-| `MemoEntryPoint.kt` | Tells Light's Tool Manager about the Recordings folder. |
-| `HomeScreen.kt` | The list of recordings, and the low-storage warning when Memo opens. |
-| `RecordScreen.kt` | Asking for the microphone, recording, pause and resume, the storage checks, and saving. |
-| `PlayerScreen.kt` | Playback: waveform scrubbing, the progress line, ±15 seconds, speed. |
-| `OptionsScreens.kt` | Rename (Light's keyboard), Share (how to use the Tool Manager), Delete (asks first). |
-| `AboutScreen.kt` | Privacy, storage space and version. |
-| `MemoUi.kt` | Shared pieces: the theme (which keeps the screen on), list rows, notices and the waveform drawing. |
-| `MemoPreviews.kt` | Every screen at both Light screen sizes, for Android Studio's preview pane. |
+- `Models.kt`: naming, storage levels, time and size formatting, speeds and the waveform scale. No Android code, so it's unit tested.
+- `RecordingStore.kt`: listing, saving, renaming and deleting recordings. Also unit tested.
+- `Audio.kt`: `MediaRecorder` (mono AAC), `MediaPlayer` and free space.
+- `HomeScreen.kt`, `RecordScreen.kt`, `PlayerScreen.kt`, `OptionsScreens.kt`, `AboutScreen.kt`: the screens.
+- `MemoUi.kt`: shared UI, including the waveform.
+- `MemoEntryPoint.kt`: adds the Recordings folder to the Tool Manager.
+- `MemoPreviews.kt`: every screen at Light Phone III and Light Flip sizes.
 
-## Where files are kept
+Files on the phone, in Memo's private storage:
 
-Inside Memo's private storage on the phone:
-
-| Path | What |
-|---|---|
-| `files/shared/recordings/<name>.m4a` | The recordings. `files/shared` is what the Tool Manager can see. |
-| `files/waveforms/<name>.wave` | Each recording's waveform: one byte (0–255) per tenth of a second. Recordings added from a computer have none and show a row of dots. |
-| `files/in-progress.m4a` | The recording being made. It's moved into `recordings` when it stops, so the Tool Manager never shows a half-written file. If Memo is closed mid-recording, it's discarded the next time Memo opens. |
-
-## Permissions
-
-- `RECORD_AUDIO`: the microphone. LightOS asks the first time a recording starts.
-- `tool-manager-provider` (a Light capability): lets the Tool Manager see `files/shared`.
+- `files/shared/recordings/<name>.m4a`: the recordings. `files/shared` is what the Tool Manager can see.
+- `files/waveforms/<name>.wave`: the bars for each recording, one byte per 100 ms. Files added from a computer don't have one and show dots instead.
+- `files/in-progress.m4a`: the recording being made, moved into `recordings` when it stops.
 
 ## License
 

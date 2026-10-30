@@ -24,13 +24,11 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 
-/** What the options screen did to the recording. */
 sealed interface OptionsResult {
     data class Renamed(val newName: String) : OptionsResult
     data object Deleted : OptionsResult
 }
 
-/** Rename, share or delete one recording. Returns what changed. */
 class OptionsScreen(
     sealedActivity: SealedLightActivity,
     private val name: String,
@@ -88,7 +86,6 @@ internal fun OptionsContent(
     }
 }
 
-/** Light's full-screen text entry with its on-screen keyboard. Returns what was typed. */
 class TextEntryScreen(
     sealedActivity: SealedLightActivity,
     private val title: String,
@@ -114,10 +111,6 @@ class TextEntryScreen(
     }
 }
 
-/**
- * How to get a recording off the phone. Light phones have no share menu; recordings are in
- * Memo's Recordings folder in Light's Tool Manager (see [MemoEntryPoint]).
- */
 class ShareScreen(
     sealedActivity: SealedLightActivity,
     private val name: String,
@@ -145,7 +138,6 @@ internal fun ShareContent(name: String, onBack: () -> Unit) {
     }
 }
 
-/** Asks before deleting. Returns true to delete. */
 class ConfirmDeleteScreen(
     sealedActivity: SealedLightActivity,
     private val name: String,

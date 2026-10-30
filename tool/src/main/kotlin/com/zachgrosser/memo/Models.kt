@@ -5,31 +5,16 @@ import java.util.Locale
 import kotlin.math.ln
 import kotlin.math.roundToInt
 
-// Memo's rules, kept free of Android classes so the unit tests can run on the JVM.
-// Numbers use Locale.ROOT: Memo is in English, and file names should read the same on any phone.
-
-/** Recordings are AAC audio in an MPEG-4 file, which every computer and phone can play. */
 const val RECORDING_EXTENSION = "m4a"
 
-/** Names: what a recording is called by default, and what a rename may contain. */
 object RecordingNames {
 
-    /** Longest name Memo keeps, so file names stay well inside Android's 255-byte limit. */
     const val MAX_LENGTH = 80
 
-    /**
-     * The date and 24-hour time the recording started, such as "2026.10.30 1405". No colon in
-     * the time: file names with colons can't be saved on Windows, and recordings are downloaded
-     * to computers through Light's Tool Manager.
-     */
+    // No colon in the time: Windows doesn't allow one in file names.
     fun default(start: LocalDateTime): String =
         "%04d.%02d.%02d %02d%02d".format(Locale.ROOT, start.year, start.monthValue, start.dayOfMonth, start.hour, start.minute)
 
-    /**
-     * Makes typed text safe as a file name: removes characters that file systems reject
-     * (/ \ : * ? " < > | and control characters), squeezes spaces, and drops leading dots so
-     * the file isn't hidden. Returns "" if nothing usable is left.
-     */
     fun clean(typed: String): String =
         typed
             .map { if (it in FORBIDDEN || it.isISOControl()) ' ' else it }
@@ -41,10 +26,6 @@ object RecordingNames {
             .take(MAX_LENGTH)
             .trimEnd()
 
-    /**
-     * [name], or "[name] (2)", "[name] (3)"… if it's already taken. Comparison ignores case,
-     * because some computers treat "Memo" and "memo" as the same file.
-     */
     fun unique(name: String, taken: Collection<String>): String {
         val lower = taken.map { it.lowercase() }.toSet()
         if (name.lowercase() !in lower) return name
@@ -56,16 +37,8 @@ object RecordingNames {
     private const val FORBIDDEN = "/\\:*?\"<>|"
 }
 
-/** How full the phone is, and what Memo does about it. */
 enum class StorageLevel {
-    /** More than [LOW_FRACTION] free. */
-    Ok,
-
-    /** [LOW_FRACTION] or less free: Memo warns, full screen. */
-    Low,
-
-    /** [FULL_FRACTION] or less free: Memo won't record, and stops a recording in progress. */
-    Full;
+    Ok, Low, Full;
 
     companion object {
         const val LOW_FRACTION = 0.10
@@ -83,17 +56,14 @@ enum class StorageLevel {
     }
 }
 
-/** Free and total space where Memo keeps recordings. */
 data class StorageInfo(val freeBytes: Long, val totalBytes: Long) {
     val level: StorageLevel get() = StorageLevel.of(freeBytes, totalBytes)
     val freeFraction: Float get() = if (totalBytes <= 0) 1f else (freeBytes.toDouble() / totalBytes).toFloat()
 
-    /** Such as "12.4 GB free of 128 GB (9%)". */
     fun describe(): String =
         "${formatBytes(freeBytes)} free of ${formatBytes(totalBytes)} (${(freeFraction * 100).roundToInt()}%)"
 }
 
-/** Sizes in the units phones use: 1 GB = 1,000,000,000 bytes. */
 fun formatBytes(bytes: Long): String {
     val units = listOf("bytes", "KB", "MB", "GB", "TB")
     var value = bytes.toDouble()
@@ -109,7 +79,6 @@ fun formatBytes(bytes: Long): String {
     }
 }
 
-/** "0:07", "12:34", or "1:02:03" for an hour or more. Rounds down to the second. */
 fun formatDuration(millis: Long): String {
     val total = (millis.coerceAtLeast(0) / 1000)
     val h = total / 3600
@@ -118,7 +87,6 @@ fun formatDuration(millis: Long): String {
     return if (h > 0) "%d:%02d:%02d".format(Locale.ROOT, h, m, s) else "%d:%02d".format(Locale.ROOT, m, s)
 }
 
-/** Playback speeds, in the order the speed button steps through them. */
 object PlaybackSpeeds {
     val all = listOf(1f, 1.25f, 1.5f, 2f, 0.5f, 0.75f)
 
@@ -127,30 +95,20 @@ object PlaybackSpeeds {
         return all[(i + 1) % all.size]
     }
 
-    /** "1×", "1.25×", "0.5×". */
     fun label(speed: Float): String =
         (if (speed == speed.toInt().toFloat()) speed.toInt().toString() else speed.toString()) + "×"
 }
 
-/**
- * The line drawing of a recording's loudness, Google Recorder style: one bar per sample,
- * [SAMPLES_PER_SECOND] samples a second, each 0–255. Saved beside Memo's private files, one byte
- * per sample, so playback can show the same bars that were drawn while recording.
- */
+// One bar per 100 ms, saved as one byte each.
 object Waveform {
     const val SAMPLES_PER_SECOND = 10
     const val SAMPLE_MILLIS = 1000L / SAMPLES_PER_SECOND
 
-    /** Loudest value Android's MediaRecorder.getMaxAmplitude() reports. */
     private const val MAX_AMPLITUDE = 32767.0
 
-    /** Quieter than this (room hiss) draws as the smallest bar. */
     private const val FLOOR_AMPLITUDE = 120.0
 
-    /**
-     * Turns a MediaRecorder amplitude into a bar height (0–255). Uses a log scale, as ears
-     * hear it: speaking and shouting both show, and silence stays flat.
-     */
+    // Log scale, so quiet speech still shows up.
     fun level(amplitude: Int): Int {
         if (amplitude <= FLOOR_AMPLITUDE) return 0
         val fraction = ln(amplitude / FLOOR_AMPLITUDE) / ln(MAX_AMPLITUDE / FLOOR_AMPLITUDE)
@@ -161,12 +119,9 @@ object Waveform {
 
     fun decode(bytes: ByteArray): List<Int> = bytes.map { it.toInt() and 0xFF }
 
-    /** Number of samples covering [millis] of audio. */
     fun samplesFor(millis: Long): Int = (millis / SAMPLE_MILLIS).toInt()
 
-    /** Where [millis] falls, in samples (fractional, for smooth scrolling). */
     fun positionOf(millis: Long): Float = millis.toFloat() / SAMPLE_MILLIS
 
-    /** The audio time at sample [position]. */
     fun millisAt(position: Float): Long = (position * SAMPLE_MILLIS).toLong()
 }

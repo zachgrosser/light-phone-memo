@@ -27,14 +27,12 @@ import kotlinx.coroutines.withContext
 
 const val SOURCE_URL = "https://github.com/zachgrosser/light-phone-memo"
 
-/** What Memo's recordings take up. */
 data class AboutState(
     val storage: StorageInfo? = null,
     val recordingCount: Int = 0,
     val recordingBytes: Long = 0,
 )
 
-/** Privacy, storage space, and version. */
 class AboutScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Unit>(sealedActivity) {
 
     @Composable
@@ -73,7 +71,6 @@ internal fun AboutContent(state: AboutState, onBack: () -> Unit) {
             ListHeading("Storage")
             state.storage?.let { storage ->
                 Note(storage.describe())
-                // How full the phone is, as a line.
                 Box(modifier = Modifier.padding(end = unit, top = unit * 0.25f, bottom = unit * 0.75f)) {
                     LightProgressBar(colors = LightThemeTokens.colors, progress = 1f - storage.freeFraction)
                 }

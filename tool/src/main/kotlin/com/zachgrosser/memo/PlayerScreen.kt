@@ -43,9 +43,7 @@ data class PlayerState(
     val positionMillis: Long = 0,
     val playing: Boolean = false,
     val speed: Float = 1f,
-    /** The waveform drawn while recording, or empty for files added from a computer. */
     val levels: List<Int> = emptyList(),
-    /** Set once the recording has been deleted: go back to the list. */
     val deleted: Boolean = false,
 )
 
@@ -122,7 +120,6 @@ class PlayerViewModel(private val store: RecordingStore, name: String) : LightVi
         _state.update { it.copy(speed = speed) }
     }
 
-    // Dragging the waveform: pause while dragging, so the sound doesn't stutter, then carry on.
     fun scrubStart() {
         scrubbing = true
         playAfterScrub = _state.value.playing
@@ -162,7 +159,6 @@ class PlayerViewModel(private val store: RecordingStore, name: String) : LightVi
     }
 }
 
-/** Plays a recording: the waveform to drag through, skip back and forward, and speed. */
 class PlayerScreen(
     sealedActivity: SealedLightActivity,
     private val name: String,

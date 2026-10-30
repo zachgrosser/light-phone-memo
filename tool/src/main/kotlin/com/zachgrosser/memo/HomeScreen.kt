@@ -36,11 +36,10 @@ data class HomeState(
     val loaded: Boolean = false,
     val recordings: List<Recording> = emptyList(),
     val storage: StorageInfo? = null,
-    /** True while the full-screen low-storage notice is showing. */
     val showLowStorage: Boolean = false,
 )
 
-/** Shown once each time Memo starts, so the warning isn't repeated on every visit to the list. */
+// Warn once per launch, not on every visit to the list.
 private var lowStorageNoticeShown = false
 
 class HomeViewModel(private val store: RecordingStore, private val filesDir: File) : LightViewModel<Unit>() {
@@ -49,13 +48,12 @@ class HomeViewModel(private val store: RecordingStore, private val filesDir: Fil
     val state: StateFlow<HomeState> = _state
 
     init {
-        // A recording still "in progress" means Memo was closed mid-recording; it can't be played.
+        // Left behind if Memo was closed mid-recording.
         viewModelScope.launch(Dispatchers.IO) { store.discardInProgress() }
     }
 
     override fun onScreenShow(screen: SimpleLightScreen<Unit>) {
         super.onScreenShow(screen)
-        // Back from recording, renaming or deleting, or from the Tool Manager changing files.
         reload()
     }
 
