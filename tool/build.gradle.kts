@@ -37,6 +37,11 @@ android {
         }
     }
 
+    buildFeatures {
+        // For the version number on the About screen.
+        buildConfig = true
+    }
+
     defaultConfig {
         minSdk = rootProject.ext["minSdk"] as Int
         targetSdk = rootProject.ext["targetSdk"] as Int

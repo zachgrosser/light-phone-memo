@@ -1,10 +1,11 @@
 [tool]
-id = "com.thelightphone.app"
-label = "Light SDK Tool"
+id = "com.zachgrosser.memo"
+label = "Memo"
 versionCode = 1
-versionName = "1.0.0"
-permissions = ["android.permission.INTERNET"]
-capabilities = []
+versionName = "0.1.0"
+permissions = ["android.permission.RECORD_AUDIO"]
+# tool-manager-provider lets recordings be downloaded through Light's Tool Manager.
+capabilities = ["tool-manager-provider"]
 # for the LightOS emulator, use the line below and build with -DlightSdk.allowAltServerPackage=true
 # serverPackage = "com.thelightphone.sdk.emulator"
 serverPackage = "com.lightos"
