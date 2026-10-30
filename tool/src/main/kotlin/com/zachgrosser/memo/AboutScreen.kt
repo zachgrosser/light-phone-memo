@@ -42,11 +42,10 @@ class AboutScreen(sealedActivity: SealedLightActivity) : SimpleLightScreen<Unit>
         var state by remember { mutableStateOf(AboutState()) }
         LaunchedEffect(Unit) {
             state = withContext(Dispatchers.IO) {
-                val store = RecordingStore(lightContext.filesDir) { null }
-                val files = store.recordingsDir.listFiles()?.filter { it.isFile }.orEmpty()
+                val files = recordingStore(lightContext.filesDir).files()
                 AboutState(
                     storage = storageInfo(lightContext.filesDir),
-                    recordingCount = files.count { it.extension.equals(RECORDING_EXTENSION, ignoreCase = true) },
+                    recordingCount = files.size,
                     recordingBytes = files.sumOf { it.length() },
                 )
             }

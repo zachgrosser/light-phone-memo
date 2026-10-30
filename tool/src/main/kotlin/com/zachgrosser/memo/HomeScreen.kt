@@ -80,7 +80,7 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeVi
         get() = HomeViewModel::class.java
 
     override fun createViewModel() =
-        HomeViewModel(RecordingStore(lightContext.filesDir, ::mediaDuration), lightContext.filesDir)
+        HomeViewModel(recordingStore(lightContext.filesDir), lightContext.filesDir)
 
     @Composable
     override fun Content() {
@@ -92,8 +92,8 @@ class HomeScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, HomeVi
                 onRecord = { navigateTo({ RecordScreen(it) }) },
                 onAbout = { navigateTo({ AboutScreen(it) }) },
             )
-            if (state.showLowStorage && state.storage != null) {
-                FullScreenNotice(lowStorageMessage(state.storage!!), onClose = viewModel::closeLowStorage)
+            state.storage?.takeIf { state.showLowStorage }?.let {
+                FullScreenNotice(lowStorageMessage(it), onClose = viewModel::closeLowStorage)
             }
         }
     }

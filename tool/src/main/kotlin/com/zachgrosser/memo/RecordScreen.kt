@@ -54,8 +54,8 @@ sealed interface RecordPhase {
     /** Stopping and saving. */
     data object Saving : RecordPhase
 
-    /** Done: go back to the list (after the notice, if there is one). */
-    data class Finished(val savedName: String?) : RecordPhase
+    /** Done (saved, or nothing to save): go back to the list, after the notice if there is one. */
+    data object Finished : RecordPhase
 
     data class Failed(val message: String) : RecordPhase
 }
@@ -124,7 +124,7 @@ class RecordViewModel(private val store: RecordingStore, private val filesDir: F
         if (recorder != null) return
         val storage = withContext(Dispatchers.IO) { storageInfo(filesDir) }
         if (storage.level == StorageLevel.Full) {
-            _state.update { it.copy(phase = RecordPhase.Finished(null), notice = lowStorageMessage(storage)) }
+            _state.update { it.copy(phase = RecordPhase.Finished, notice = lowStorageMessage(storage)) }
             return
         }
         val name = RecordingNames.default(LocalDateTime.now())
@@ -200,7 +200,7 @@ class RecordViewModel(private val store: RecordingStore, private val filesDir: F
     /** Stops and saves. With [notice], says why before going back to the list. */
     fun stop(notice: String? = null) {
         val rec = recorder ?: run {
-            _state.update { it.copy(phase = RecordPhase.Finished(null)) }
+            _state.update { it.copy(phase = RecordPhase.Finished) }
             return
         }
         recorder = null
@@ -209,15 +209,10 @@ class RecordViewModel(private val store: RecordingStore, private val filesDir: F
         val finalLevels = levels.toList()
         _state.update { it.copy(phase = RecordPhase.Saving, elapsedMillis = elapsed(), notice = notice) }
         viewModelScope.launch {
-            val saved = withContext(Dispatchers.IO) {
-                if (rec.stop()) {
-                    store.saveInProgress(name, finalLevels)
-                } else {
-                    store.discardInProgress()
-                    null
-                }
+            withContext(Dispatchers.IO) {
+                if (rec.stop()) store.saveInProgress(name, finalLevels) else store.discardInProgress()
             }
-            _state.update { it.copy(phase = RecordPhase.Finished(saved)) }
+            _state.update { it.copy(phase = RecordPhase.Finished) }
         }
     }
 
@@ -241,7 +236,7 @@ class RecordScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, Reco
         get() = RecordViewModel::class.java
 
     override fun createViewModel() =
-        RecordViewModel(RecordingStore(lightContext.filesDir, ::mediaDuration), lightContext.filesDir)
+        RecordViewModel(recordingStore(lightContext.filesDir), lightContext.filesDir)
 
     @Composable
     override fun Content() {
@@ -257,7 +252,7 @@ class RecordScreen(sealedActivity: SealedLightActivity) : LightScreen<Unit, Reco
         }
         // Back to the list once saved, after any notice has been read.
         LaunchedEffect(phase, state.notice) {
-            if (phase is RecordPhase.Finished && state.notice == null) goBack()
+            if (phase == RecordPhase.Finished && state.notice == null) goBack()
         }
 
         MemoTheme {
@@ -299,7 +294,7 @@ internal fun RecordContent(
     val phase = state.phase
     val title = when (phase) {
         RecordPhase.Paused -> "Paused"
-        RecordPhase.Saving, is RecordPhase.Finished -> "Saving"
+        RecordPhase.Saving, RecordPhase.Finished -> "Saving"
         else -> "Recording"
     }
     Column(modifier = Modifier.fillMaxSize()) {

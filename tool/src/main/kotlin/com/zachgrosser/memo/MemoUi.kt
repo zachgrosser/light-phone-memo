@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.thelightphone.sdk.ui.LightBarButton
+import com.thelightphone.sdk.ui.LightBottomBar
 import com.thelightphone.sdk.ui.LightFullscreenModal
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightText
@@ -69,7 +70,7 @@ fun backButton(onClick: () -> Unit) = LightBarButton.LightIcon(
     contentDescription = "Back",
 )
 
-/** A top bar plus a centred message, with an optional action under it. */
+/** A top bar plus a centred message, with an optional action (such as "DELETE") in the bottom bar. */
 @Composable
 fun MessageScreen(
     title: String,
@@ -84,24 +85,20 @@ fun MessageScreen(
             leftButton = onBack?.let { backButton(it) },
             center = LightTopBarCenter.Text(title),
         )
-        Column(
+        Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
                 .padding(horizontal = unit),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+            contentAlignment = Alignment.Center,
         ) {
             LightText(text = message, variant = LightTextVariant.Copy, align = TextAlign.Center)
-            if (action != null && onAction != null) {
-                Spacer(Modifier.height(unit * 1.5f))
-                LightText(
-                    text = action,
-                    variant = LightTextVariant.Button,
-                    underline = true,
-                    modifier = Modifier.lightClickable(onClick = onAction),
-                )
-            }
+        }
+        if (action != null && onAction != null) {
+            LightBottomBar(
+                items = listOf(LightBarButton.Text(action, onClick = onAction)),
+                modifier = Modifier.padding(bottom = unit),
+            )
         }
     }
 }

@@ -24,13 +24,19 @@ import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 
+/** What the options screen did to the recording. */
+sealed interface OptionsResult {
+    data class Renamed(val newName: String) : OptionsResult
+    data object Deleted : OptionsResult
+}
+
 /** Rename, share or delete one recording. Returns what changed. */
 class OptionsScreen(
     sealedActivity: SealedLightActivity,
     private val name: String,
 ) : SimpleLightScreen<OptionsResult>(sealedActivity) {
 
-    private val store by lazy { RecordingStore(lightContext.filesDir, ::mediaDuration) }
+    private val store by lazy { recordingStore(lightContext.filesDir) }
 
     @Composable
     override fun Content() {

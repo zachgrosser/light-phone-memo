@@ -9,6 +9,9 @@ import java.io.File
 
 // The Android parts: the microphone, the speaker, and the storage figures.
 
+/** Memo's recordings, with lengths read by Android. */
+fun recordingStore(filesDir: File) = RecordingStore(filesDir, ::mediaDuration)
+
 /** Free and total space on the storage holding [dir]. */
 fun storageInfo(dir: File): StorageInfo {
     val stat = StatFs(dir.path)
@@ -84,7 +87,6 @@ class Player(file: File) {
 
     val durationMillis: Long get() = player.duration.toLong().coerceAtLeast(0)
     val positionMillis: Long get() = player.currentPosition.toLong()
-    val isPlaying: Boolean get() = player.isPlaying
 
     private var speed = 1f
 

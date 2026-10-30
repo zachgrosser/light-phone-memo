@@ -1,5 +1,6 @@
 package com.zachgrosser.memo
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +16,6 @@ import androidx.lifecycle.viewModelScope
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.LightViewModel
 import com.thelightphone.sdk.SealedLightActivity
-import com.thelightphone.sdk.SimpleLightScreen
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightBottomBar
 import com.thelightphone.sdk.ui.LightIcons
@@ -38,7 +38,6 @@ import kotlinx.coroutines.withContext
 
 data class PlayerState(
     val name: String,
-    val loaded: Boolean = false,
     val failed: Boolean = false,
     val durationMillis: Long = 0,
     val positionMillis: Long = 0,
@@ -66,7 +65,7 @@ class PlayerViewModel(private val store: RecordingStore, name: String) : LightVi
                 runCatching { Player(store.fileFor(name)) to store.waveform(name).orEmpty() }.getOrNull()
             }
             if (loaded == null) {
-                _state.update { it.copy(loaded = true, failed = true) }
+                _state.update { it.copy(failed = true) }
                 return@launch
             }
             val (newPlayer, levels) = loaded
@@ -75,7 +74,7 @@ class PlayerViewModel(private val store: RecordingStore, name: String) : LightVi
                 ticker?.cancel()
                 _state.update { it.copy(playing = false, positionMillis = it.durationMillis) }
             }
-            _state.update { it.copy(loaded = true, durationMillis = newPlayer.durationMillis, levels = levels) }
+            _state.update { it.copy(durationMillis = newPlayer.durationMillis, levels = levels) }
         }
     }
 
@@ -163,12 +162,6 @@ class PlayerViewModel(private val store: RecordingStore, name: String) : LightVi
     }
 }
 
-/** What the options screen did to the recording. */
-sealed interface OptionsResult {
-    data class Renamed(val newName: String) : OptionsResult
-    data object Deleted : OptionsResult
-}
-
 /** Plays a recording: the waveform to drag through, skip back and forward, and speed. */
 class PlayerScreen(
     sealedActivity: SealedLightActivity,
@@ -178,7 +171,7 @@ class PlayerScreen(
     override val viewModelClass: Class<PlayerViewModel>
         get() = PlayerViewModel::class.java
 
-    override fun createViewModel() = PlayerViewModel(RecordingStore(lightContext.filesDir, ::mediaDuration), name)
+    override fun createViewModel() = PlayerViewModel(recordingStore(lightContext.filesDir), name)
 
     @Composable
     override fun Content() {
@@ -256,7 +249,7 @@ internal fun PlayerContent(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 TimeText(text = formatDuration(state.positionMillis), style = LightThemeTokens.typography.detail)
-                Row(modifier = Modifier.weight(1f), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center) {
+                Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.Center) {
                     LightText(
                         text = PlaybackSpeeds.label(state.speed),
                         variant = LightTextVariant.Button,

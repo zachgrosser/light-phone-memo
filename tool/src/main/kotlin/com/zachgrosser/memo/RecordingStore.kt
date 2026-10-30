@@ -34,20 +34,22 @@ class RecordingStore(
     /** Durations already read, by file path, size and date, since reading them takes a moment. */
     private val durations = mutableMapOf<Triple<String, Long, Long>, Long?>()
 
-    /** Every recording, newest first. Includes .m4a files put in the folder with the Tool Manager. */
-    fun list(): List<Recording> {
-        val files = recordingsDir.listFiles { f -> f.isFile && f.extension.equals(RECORDING_EXTENSION, ignoreCase = true) }
-            ?: return emptyList()
-        return files
+    /** The audio files in the recordings folder, including any added with the Tool Manager. */
+    fun files(): List<File> =
+        recordingsDir.listFiles { f -> f.isFile && f.extension.equals(RECORDING_EXTENSION, ignoreCase = true) }
+            ?.toList().orEmpty()
+
+    /** Every recording, newest first. */
+    fun list(): List<Recording> =
+        files()
             .map { file ->
                 val key = Triple(file.path, file.length(), file.lastModified())
                 val duration = synchronized(durations) { durations.getOrPut(key) { durationOf(file) } }
                 Recording(file.nameWithoutExtension, file, duration, file.lastModified())
             }
             .sortedWith(compareByDescending<Recording> { it.lastModified }.thenBy { it.name })
-    }
 
-    fun names(): List<String> =
+    private fun names(): List<String> =
         recordingsDir.listFiles()?.filter { it.isFile }?.map { it.nameWithoutExtension }.orEmpty()
 
     fun fileFor(name: String) = File(recordingsDir, "$name.$RECORDING_EXTENSION")

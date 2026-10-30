@@ -20,6 +20,21 @@ Light phones have no share menu, so recordings are shared through **Light's Tool
 - **Leaving Memo stops a recording** and saves it. That includes switching the screen off with the power button. Android doesn't let apps in the background hear the microphone unless they run a foreground service, and Light's tools can't.
 - **No transcription.** Android's speech recognizer isn't available to Light tools, and no speech library is on Light's list of allowed libraries. Light's SDK also has no way to send text to the Notes tool.
 
+## Light's Tool Guidelines
+
+How Memo meets each of Light's [Tool Guidelines](../TOOL_GUIDELINES.md):
+
+| Guideline | Memo |
+|---|---|
+| Intentionality | One job: record and play back. No feeds, notifications or anything that asks to be checked. |
+| Privacy | No internet permission, analytics or tracking. Recordings leave the phone only when the person downloads them with Light's Tool Manager; About and Share say so. |
+| No advertising | None. |
+| Open source | MIT ([LICENSE](LICENSE)). |
+| SDK compliance | Built with Light's SDK and checked against the version Light's build server uses (v0.2.0). Microphone access goes through LightOS (`checkPermission`, `rememberPermissionRequestLauncher`); sharing through the SDK's Tool Manager support. |
+| Design | Light's components throughout: top and bottom bars, icons, text styles, lists, progress line, text entry and full-screen notice, in the person's light or dark theme. The waveform and the timers are drawn in Light's colours and typeface. |
+| Longevity & maintenance | Works entirely offline. No dependencies beyond Light's SDK; standard .m4a audio any computer can play. |
+| Legal | No third-party services or content. |
+
 ## Files
 
 All in `src/main/kotlin/com/zachgrosser/memo/`:

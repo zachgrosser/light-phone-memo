@@ -74,7 +74,7 @@ private fun PausedPreview() = MemoTheme {
 private fun PlayerPreview() = MemoTheme {
     PlayerContent(
         PlayerState(
-            name = "Grocery list", loaded = true, durationMillis = 60_000, positionMillis = 21_300,
+            name = "Grocery list", durationMillis = 60_000, positionMillis = 21_300,
             playing = true, speed = 1.5f, levels = SAMPLE_LEVELS,
         ),
         onBack = {}, onOptions = {}, onTogglePlay = {}, onSkip = {}, onSeekFraction = {}, onSpeed = {},
@@ -86,7 +86,7 @@ private fun PlayerPreview() = MemoTheme {
 @Composable
 private fun PlayerNoWaveformPreview() = MemoTheme {
     PlayerContent(
-        PlayerState(name = "Uploaded from a computer", loaded = true, durationMillis = 40_000, positionMillis = 0),
+        PlayerState(name = "Uploaded from a computer", durationMillis = 40_000, positionMillis = 0),
         onBack = {}, onOptions = {}, onTogglePlay = {}, onSkip = {}, onSeekFraction = {}, onSpeed = {},
         onScrubStart = {}, onScrub = {}, onScrubEnd = {},
     )
