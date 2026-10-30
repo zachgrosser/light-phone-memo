@@ -24,7 +24,7 @@ private val SAMPLE_LEVELS = List(600) { i ->
 }
 
 private val SAMPLE_RECORDINGS = listOf(
-    Recording("2026.10.30 14.05", File("a"), 754_000, 3),
+    Recording("2026.10.30 1405", File("a"), 754_000, 3),
     Recording("Grocery list", File("b"), 31_000, 2),
     Recording("Song idea, chorus", File("c"), 3_725_000, 1),
 )
@@ -53,7 +53,7 @@ private fun LowStoragePreview() = MemoTheme {
 @Composable
 private fun RecordingPreview() = MemoTheme {
     RecordContent(
-        RecordState(phase = RecordPhase.Recording, name = "2026.10.30 14.05", elapsedMillis = 23_400, samples = 234),
+        RecordState(phase = RecordPhase.Recording, name = "2026.10.30 1405", elapsedMillis = 23_400, samples = 234),
         levels = SAMPLE_LEVELS,
         onPause = {}, onResume = {}, onStop = {},
     )
@@ -63,7 +63,7 @@ private fun RecordingPreview() = MemoTheme {
 @Composable
 private fun PausedPreview() = MemoTheme {
     RecordContent(
-        RecordState(phase = RecordPhase.Paused, name = "2026.10.30 14.05", elapsedMillis = 5_100, samples = 51),
+        RecordState(phase = RecordPhase.Paused, name = "2026.10.30 1405", elapsedMillis = 5_100, samples = 51),
         levels = SAMPLE_LEVELS,
         onPause = {}, onResume = {}, onStop = {},
     )

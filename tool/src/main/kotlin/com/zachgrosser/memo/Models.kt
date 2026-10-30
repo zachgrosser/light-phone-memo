@@ -18,12 +18,12 @@ object RecordingNames {
     const val MAX_LENGTH = 80
 
     /**
-     * The date and time the recording started, such as "2026.10.30 14.05". The time uses a
-     * dot rather than a colon: file names with colons can't be saved on Windows, and recordings
-     * are downloaded to computers through Light's Tool Manager.
+     * The date and 24-hour time the recording started, such as "2026.10.30 1405". No colon in
+     * the time: file names with colons can't be saved on Windows, and recordings are downloaded
+     * to computers through Light's Tool Manager.
      */
     fun default(start: LocalDateTime): String =
-        "%04d.%02d.%02d %02d.%02d".format(Locale.ROOT, start.year, start.monthValue, start.dayOfMonth, start.hour, start.minute)
+        "%04d.%02d.%02d %02d%02d".format(Locale.ROOT, start.year, start.monthValue, start.dayOfMonth, start.hour, start.minute)
 
     /**
      * Makes typed text safe as a file name: removes characters that file systems reject

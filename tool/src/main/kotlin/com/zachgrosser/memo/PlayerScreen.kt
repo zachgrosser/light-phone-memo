@@ -255,7 +255,7 @@ internal fun PlayerContent(
                 modifier = Modifier.fillMaxWidth().padding(top = unit * 0.5f),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                LightText(text = formatDuration(state.positionMillis), variant = LightTextVariant.Detail, monospace = true)
+                TimeText(text = formatDuration(state.positionMillis), style = LightThemeTokens.typography.detail)
                 Row(modifier = Modifier.weight(1f), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center) {
                     LightText(
                         text = PlaybackSpeeds.label(state.speed),
@@ -263,7 +263,7 @@ internal fun PlayerContent(
                         modifier = Modifier.lightClickable(onClick = onSpeed).padding(horizontal = unit, vertical = unit * 0.25f),
                     )
                 }
-                LightText(text = formatDuration(state.durationMillis), variant = LightTextVariant.Detail, lighten = true, monospace = true)
+                TimeText(text = formatDuration(state.durationMillis), style = LightThemeTokens.typography.detail, lighten = true)
             }
         }
         LightBottomBar(

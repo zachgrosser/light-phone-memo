@@ -5,7 +5,7 @@ A voice recorder for the Light Phone III (and later the Light Flip).
 - **Record:** tap the microphone. Pause and resume as often as you like; stop (or the back arrow) saves. A line drawing of the sound scrolls past a centre line as you speak, like Google Recorder's.
 - **Play:** tap a recording. Drag the waveform sideways (or tap the progress line) to move through it, skip 15 seconds back or forward, and tap the speed (1×, 1.25×, 1.5×, 2×, 0.5×, 0.75×) to change it.
 - **Rename, share, delete:** the ••• button on a recording.
-- **Names:** a new recording is named after when it started, such as `2026.10.30 14.05` (year.month.day, 24-hour time). The time uses a dot because colons aren't allowed in file names on Windows.
+- **Names:** a new recording is named after when it started, such as `2026.10.30 1405` (year.month.day, 24-hour time). There's no colon in the time because colons aren't allowed in file names on Windows.
 - **The screen stays on** while Memo is open, whatever the phone's screen timeout is.
 - **Storage:** About shows how much space is free. Below 10% free, Memo shows a full-screen warning. At 2% it won't start a recording and stops one in progress (keeping what was recorded), so the phone keeps working.
 

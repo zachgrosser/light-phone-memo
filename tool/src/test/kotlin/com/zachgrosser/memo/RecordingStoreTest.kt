@@ -27,8 +27,8 @@ class RecordingStoreTest {
     @Test
     fun recordingsAreInTheToolManagerFolder() {
         assertEquals(File(dir, "shared/recordings"), store.recordingsDir)
-        record("2026.10.30 14.05")
-        assertTrue(File(dir, "shared/recordings/2026.10.30 14.05.m4a").isFile)
+        record("2026.10.30 1405")
+        assertTrue(File(dir, "shared/recordings/2026.10.30 1405.m4a").isFile)
         assertFalse(store.inProgressFile.exists())
     }
 

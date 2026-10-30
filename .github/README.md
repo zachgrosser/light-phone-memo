@@ -8,7 +8,7 @@ A voice recorder for the Light Phone: record, pause and carry on, play back at a
 
 - Recordings stay on the phone. Memo has no internet access, accounts, ads or tracking.
 - Copy recordings to a computer over your own Wi-Fi with Light's Tool Manager.
-- Rename and delete recordings; names default to when they started (`2026.10.30 14.05`).
+- Rename and delete recordings; names default to when they started (`2026.10.30 1405`).
 - Keeps the screen on, warns when storage runs low and stops recording before the phone fills up.
 - Works on the Light Phone III's screen and adapts to smaller ones like the Light Flip's.
 

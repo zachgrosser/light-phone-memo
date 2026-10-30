@@ -9,9 +9,9 @@ class ModelsTest {
 
     @Test
     fun defaultNameIsDateAndTwentyFourHourTime() {
-        assertEquals("2026.10.30 14.05", RecordingNames.default(LocalDateTime.of(2026, 10, 30, 14, 5, 59)))
-        assertEquals("2027.01.02 00.00", RecordingNames.default(LocalDateTime.of(2027, 1, 2, 0, 0)))
-        assertEquals("2026.12.31 23.59", RecordingNames.default(LocalDateTime.of(2026, 12, 31, 23, 59)))
+        assertEquals("2026.10.30 1405", RecordingNames.default(LocalDateTime.of(2026, 10, 30, 14, 5, 59)))
+        assertEquals("2027.01.02 0000", RecordingNames.default(LocalDateTime.of(2027, 1, 2, 0, 0)))
+        assertEquals("2026.12.31 2359", RecordingNames.default(LocalDateTime.of(2026, 12, 31, 23, 59)))
     }
 
     @Test

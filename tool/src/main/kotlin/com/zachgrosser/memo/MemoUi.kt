@@ -18,11 +18,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.Text
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.keepScreenOn
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.thelightphone.sdk.ui.LightBarButton
@@ -35,6 +38,7 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
+import com.thelightphone.sdk.ui.designVerticalPxToSp
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
 import kotlin.math.floor
@@ -148,6 +152,29 @@ fun Note(text: String, modifier: Modifier = Modifier) {
     )
 }
 
+/**
+ * Times that count up or down, in Light's typeface (Akkurat, built into the phone) with
+ * same-width digits, so "0:11" and "0:18" take the same space and the text doesn't shuffle
+ * sideways every second. [style] is one of Light's styles, such as
+ * `LightThemeTokens.typography.title` (the large, light numbers LightOS uses).
+ */
+@Composable
+fun TimeText(text: String, style: TextStyle, modifier: Modifier = Modifier, lighten: Boolean = false) {
+    val colors = LightThemeTokens.colors
+    Text(
+        text = text,
+        modifier = modifier,
+        color = if (lighten) colors.contentSecondary else colors.content,
+        // Scaled to the screen the same way LightText scales Light's styles.
+        style = style.copy(
+            fontSize = style.fontSize.value.designVerticalPxToSp(),
+            lineHeight = style.lineHeight.value.designVerticalPxToSp(),
+            letterSpacing = if (style.letterSpacing.isSpecified) style.letterSpacing.value.designVerticalPxToSp() else style.letterSpacing,
+            fontFeatureSettings = "tnum",
+        ),
+    )
+}
+
 /** Light's full-screen notice, drawn over the current screen: low storage, recording stopped. */
 @Composable
 fun FullScreenNotice(message: String, onClose: () -> Unit) {
@@ -182,9 +209,9 @@ fun WaveformView(
     onScrubEnd: (() -> Unit)? = null,
 ) {
     val colors = LightThemeTokens.colors
-    val barWidth = 0.18f.gridUnitsAsDp()
-    val gap = 0.14f.gridUnitsAsDp()
-    val centreLineWidth = 0.08f.gridUnitsAsDp()
+    val barWidth = 0.24f.gridUnitsAsDp()
+    val gap = 0.2f.gridUnitsAsDp()
+    val centreLineWidth = 0.2f.gridUnitsAsDp()
     val currentPosition by rememberUpdatedState(position)
     val currentTotal by rememberUpdatedState(totalSamples)
     val dragModifier = if (onScrub == null) {
@@ -213,7 +240,8 @@ fun WaveformView(
         val bar = barWidth.toPx()
         val centreX = size.width / 2f
         val centreY = size.height / 2f
-        val maxHalf = size.height * 0.45f
+        // The loudest bars fill most of the height; the centre line reaches just past them.
+        val maxHalf = size.height * 0.36f
         val minHalf = bar / 2f
         val radius = CornerRadius(bar / 2f, bar / 2f)
 
@@ -240,12 +268,14 @@ fun WaveformView(
                 cornerRadius = radius,
             )
         }
-        // The centre line: "now".
+        // The centre line: "now". Rounded ends, like the bars.
         val lineWidth = centreLineWidth.toPx()
-        drawRect(
+        val lineHalf = maxHalf + bar * 2f
+        drawRoundRect(
             color = colors.content,
-            topLeft = Offset(centreX - lineWidth / 2f + bar / 2f, size.height * 0.02f),
-            size = Size(lineWidth, size.height * 0.96f),
+            topLeft = Offset(centreX + bar / 2f - lineWidth / 2f, centreY - lineHalf),
+            size = Size(lineWidth, lineHalf * 2f),
+            cornerRadius = CornerRadius(lineWidth / 2f, lineWidth / 2f),
         )
     }
 }

@@ -26,6 +26,7 @@ import com.thelightphone.sdk.ui.LightBottomBar
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextVariant
+import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
@@ -308,10 +309,9 @@ internal fun RecordContent(
             modifier = Modifier.weight(1f).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            LightText(
+            TimeText(
                 text = formatDuration(state.elapsedMillis),
-                variant = LightTextVariant.Title,
-                monospace = true,
+                style = LightThemeTokens.typography.title,
                 modifier = Modifier.padding(top = unit),
             )
             LightText(text = state.name, variant = LightTextVariant.Detail, lighten = true)
