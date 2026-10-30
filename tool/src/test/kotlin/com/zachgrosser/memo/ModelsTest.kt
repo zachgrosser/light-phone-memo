@@ -46,6 +46,8 @@ class ModelsTest {
     fun storageDescription() {
         assertEquals("12 GB free of 128 GB (9%)", StorageInfo(12_000_000_000, 128_000_000_000).describe())
         assertEquals("1.5 GB", formatBytes(1_500_000_000))
+        assertEquals("10.4 GB", formatBytes(10_400_000_000))
+        assertEquals("128 GB", formatBytes(128_000_000_000))
         assertEquals("2 MB", formatBytes(2_000_000))
         assertEquals("999 bytes", formatBytes(999))
     }

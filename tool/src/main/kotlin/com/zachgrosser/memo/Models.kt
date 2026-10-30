@@ -74,7 +74,7 @@ fun formatBytes(bytes: Long): String {
     }
     return when {
         unit == 0 -> "$bytes bytes"
-        value < 10 -> "%.1f %s".format(Locale.ROOT, value, units[unit]).replace(".0 ", " ")
+        value < 100 -> "%.1f %s".format(Locale.ROOT, value, units[unit]).replace(".0 ", " ")
         else -> "${value.roundToInt()} ${units[unit]}"
     }
 }
